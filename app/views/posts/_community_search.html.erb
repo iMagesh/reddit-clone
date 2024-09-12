@@ -1,0 +1,27 @@
+<% if communities.exists? %>
+  <% communities.each do |community| %>
+    <div class="card post-card mb-3 shadow">
+      <div class="row">
+        <div class="col-sm-1">
+          <%= display_profile_picture community, "post-list-profile-img-search", "rediit-logo.png" %>
+        </div>
+        <div class="card-body">
+          <div class="d-flex card-text mt-1">
+            <strong><%=link_to community.name,community_path(community.id),class:"card-text"%></strong>
+            <p class="ml-1 text-muted ">  Created by
+              <%= link_to "u/"+community.account.username.capitalize, profile_path(community.account.username), class: "text-muted" %>
+              <%= time_ago_in_words community.created_at %> ago</p>
+            <br>
+          </div>
+          <p class="card-text"><%= community.summary %></p>
+        </div>
+      </div>
+    </div>
+  <%end%>
+<%else%>
+  <div class="card post-card mb-3 shadow">
+    <center><%= image_tag "telescope-snoo.png" %>
+      <h4><b>Hm... we couldn't find any results for "<%= params[:search]%>"</b></h4>
+    </center><br>
+  </div>
+<%end%>

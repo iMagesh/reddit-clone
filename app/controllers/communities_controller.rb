@@ -73,6 +73,17 @@ class CommunitiesController < ApplicationController
     @username = Account.pluck(:username).sort
   end
 
+  def community_post_title_search
+    @community = Community.find(params[:selected_community_id])
+    @posts = @community.posts.where("title ILIKE ?", "%#{params[:search]}%")
+    @all_posts=Post.where(community_id: params[:selected_community_id])
+    if @all_posts.present?
+      @posts_with_comments = Comment.joins(:post).where("comments.message ILIKE ? and posts.id in (?)", "%#{params[:search]}%", @all_posts.pluck(:id))
+    else
+      @posts_with_comments = []
+    end
+  end
+
   def search_suggestions
     communities = Community.where("name ILIKE ?", "%#{params[:q]}%").select(:id, :name)
     render json: communities

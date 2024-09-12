@@ -1,3 +1,28 @@
+<script>
+  $(document).ready(function () {
+  var community_name = window.location.pathname.split('/').pop();
+  if (window.location.href.startsWith("http://localhost:3000/r/" + community_name)) {
+  $("#search-input-community").show();
+  $("#search-input").hide();
+  } else {
+  $("#search-input-community").hide();
+  $("#search-input").show();
+  }
+  document.getElementById("search-input").addEventListener("change", function () {
+  let options = document.querySelectorAll("#options option");
+  for (let option of options) {
+  if (option.value === this.value) {
+  let type = option.dataset.type;
+  let selectedOption = document.querySelector('#options option[value="' + this.value + '"]');
+  let communityId = selectedOption.dataset.id;
+  document.getElementById("selected-community-id").value = communityId;
+  window.location.href = (type === "community" ? "/r/" + communityId : "/u/" + this.value.substring(2));
+  break;
+  }
+  }
+  });
+  });
+</script >
 <div class="p-1 bg-light mr-auto">
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="navbar-nav">
@@ -14,12 +39,12 @@
           <input type="text" placeholder="Filter.." class="myInput_mycommunities">
           <%= link_to "All Communities", communities_path, :class=>"dropdown-item" %>
           <%= link_to "Top Trending", communities_path, :class=>"dropdown-item"  %>
-          <div class = "mt-2 ml-3 mb-2 text-muted">My Communities</div>
+          <div class="mt-2 ml-3 mb-2 text-muted">My Communities</div>
           <%= link_to "Create a Community", new_community_path, :class=>"dropdown-item" %>
           <% if @communities.present? and account_signed_in? and !@subscribers.nil? %>
             <% @subscribers.each do |subscribe| %>
               <%= link_to community_path(subscribe.community), class:"dropdown-item" do %>
-                <div class = "d-flex">
+                <div class="d-flex">
                   <% if subscribe.community.profile_image.attached? %>
                     <%= image_tag(subscribe.community.profile_image, class: "community-icon") %>
                   <% else %>
@@ -33,45 +58,64 @@
         </div>
       </li>
     </ul>
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav">
         <li class="nav-item dropdown">
-          <%= form_tag search_suggestions_path, method: :get do %>
+          <%= form_tag post_title_search_path, method: :get do %>
             <div class="nav-item dropdown">
-               <%= text_field_tag :q, params[:q], class: "search-input-navbar form-control myInput_mycommunities navbar-redirection", placeholder: "Search" %>
+             <%= text_field_tag :search, nil, id: "search-input", list: "options", placeholder: " Search Reddit" %>
+              <datalist id="options">
+                <%= content_tag :option, "Select Community or Username", value: "", disabled: true, selected: true %>
+                <% Community.pluck(:name, :id).each do |name, id| %>
+                  <%= content_tag :option, "r/#{name}", value: "r/#{name}", data: {type: "community",id:id }, id: "community-option" %>
+                <% end %>
+                <% if current_account.present? %>
+                  <% current_user_id = current_account.id%>
+                  <% Account.pluck(:username, :id).each do |username, id| %>
+                    <% unless id == current_user_id %>
+                      <%= content_tag :option, "u/#{username}", value: "u/#{username}", data: {type: "account" } , class: "account-option"%>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              </datalist>
+            <% end %>
+          </li>
+          <%= form_tag community_post_title_search_path, id: "search-input-community",method: :get do %>
+            <div class="nav-item dropdown">
+              <% community = Community.find_by(id: params[:id]) %>
+              <% community_name = community.try(:name) %>
+              <%= text_field_tag :search, params[:search], size: 35 ,class: "form-control", placeholder: "Search in \"#{community_name}\" Community", id: "search-input-community" %>
+              <%= hidden_field_tag :selected_community_id, nil, id: "selected-community-id", value: params[:id] %>
             </div>
           <% end %>
-        </li>
+        </ul>
+      </div>
+      <ul class="navbar-nav ">
+        <% if account_signed_in? %>
+          <div class="karma float-left mt-2 mr-1">
+            <%= current_account.karma %>
+            <li class="fa fa-star text-warning"></li>
+          </div>
+          <li class="nav-item dropdown float-left mr-5">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <%= display_profile_picture current_account, "community-icon", "profile-img.jpg" %>
+              <%= current_account.username %>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <%= link_to "Profile", profile_path(current_account.username), class: "dropdown-item" %>
+              <%= link_to "Settings", edit_account_registration_path, class: "dropdown-item" %>
+              <%= link_to "Sign Out", destroy_account_session_path, method: :delete, class: "dropdown-item" %>
+            </div>
+          </li>
+        <% else %>
+          <li class="nav-item">
+            <%= link_to "Log In", new_account_session_path, class: "nav-link" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "Sign Up", new_account_registration_path, class: "nav-link" %>
+          </li>
+        <% end %>
       </ul>
     </div>
-
-    <ul class="navbar-nav ">
-      <% if account_signed_in? %>
-        <div class="karma float-left mt-2 mr-1">
-          <%= current_account.karma %>
-          <li class="fa fa-star text-warning"></li>
-        </div>
-        <li class="nav-item dropdown float-left mr-5">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <%= display_profile_picture current_account, "community-icon", "profile-img.jpg" %>
-            <%= current_account.username %>
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <%= link_to "Profile", profile_path(current_account.username), class: "dropdown-item" %>
-            <%= link_to "Settings", edit_account_registration_path, class: "dropdown-item" %>
-            <%= link_to "Sign Out", destroy_account_session_path, method: :delete, class: "dropdown-item" %>
-          </div>
-        </li>
-      <% else %>
-        <li class="nav-item">
-          <%= link_to "Log In", new_account_session_path, class: "nav-link" %>
-        </li>
-        <li class="nav-item">
-          <%= link_to "Sign Up", new_account_registration_path, class: "nav-link" %>
-        </li>
-      <% end %>
-    </ul>
-  </div>
-</nav>
-</div>
+  </nav >
+</div >

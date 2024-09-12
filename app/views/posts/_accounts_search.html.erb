@@ -1,0 +1,26 @@
+<% if accounts.exists? %>
+  <% accounts.each do |account| %>
+    <div class="card post-card mb-3 shadow">
+      <div class="row">
+        <div class="col-sm-1">
+          <%= display_profile_picture account, "post-list-profile-img-search", "profile-img.jpg" %>
+        </div>
+        <div class="card-body">
+          <div class="d-flex card-text mt-1">
+            <strong><%=link_to account.username,profile_path(account.username)%></strong>
+            <p class="ml-1 text-muted ">
+              <%= time_ago_in_words account.created_at %> ago</p>
+            <br>
+          </div>
+          <p class="card-text"><%= account.bio %></p>
+        </div>
+      </div>
+    </div>
+  <%end%>
+<%else%>
+  <div class="card post-card mb-3 shadow">
+    <center><%= image_tag "telescope-snoo.png" %>
+      <h4><b>Hm... we couldn't find any results for "<%= params[:search]%>"</b></h4>
+    </center><br>
+  </div>
+<%end%>

@@ -1,0 +1,30 @@
+<div class = "comment">
+  <% comments.each do |comment| %>
+    <% if params[:highlight].to_i!=comment.id%>
+      <% if comment.account.profile_image.attached? %>
+        <%= link_to image_tag(comment.account.profile_image, class: "small-pic float-left m-r-15"),profile_path(comment.account) %>
+      <% else %>
+        <img class="small-pic float-left m-r-15" src="https://www.iconpacks.net/icons/2/free-reddit-logo-icon-2436-thumb.png">
+      <% end %>
+      <strong><%= link_to comment.account.full_name, profile_path(comment.account.username), class: "text-dark" %></strong>
+      <%= comment.message %>
+      <div class = "fl">
+        <p class = "text-muted m-l-30"><%= time_ago_in_words comment.created_at %> ago </p>
+        <% if !(@post.closed?) %>
+          <a href = "#" class="comment-form-display">Reply</a>
+        <% end %>
+        <div class = "comment-form">
+          <%= render partial: "comments/form", locals: {post: comment.post, parent: comment, comment_id: comment.id}%>
+        </div>
+      </div>
+      <hr>
+      <% if comment.replies.any? %>
+        <% count = 0 %>
+        <% comment.replies.each do |reply| %>
+          <% count += 1 %>
+          <div class = "sub-comment"><%= render partial: 'comments/reply', locals: { reply: reply, comment_id: reply.id } %></div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

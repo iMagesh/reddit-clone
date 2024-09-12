@@ -1,0 +1,72 @@
+<% if posts.exists? %>
+    <% posts.each do |post| %>
+      <div class="card post-card mb-3 shadow">
+        <div class="col-11">
+          <div class="row bg-white">
+            <div class="col-10">
+              <div class="d-flex post-list-head mt-2">
+                <%= display_profile_picture post.community, "post-list-profile-img mr-1", "rediit-logo.png" %>
+                <strong><%= link_to "r/"+post.community.name.capitalize, community_path(post.community), class: "text-dark" %>
+                  .
+                </strong>
+                <p class="ml-1 text-muted">Posted by
+                  <%= link_to "u/"+post.account.username.capitalize, profile_path(post.account.username), class: "text-muted" %>
+                  <%= time_ago_in_words post.created_at %>
+                  ago</p>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 d-flex post-title">
+              <h5><%= link_to post.title, community_post_path(post.community, post), class: "text-dark" %></h5>
+            </div>
+          </div>
+          <div class="row">
+            <div class="list-post-img">
+              <% if post.images.attached? %>
+                <%= image_tag post.images[0] %>
+                <% elsif post.poll_topic? %>
+                <p class="col-12 "><%= post.poll_topic %></p>
+                <%elsif link_is_valid(post.link)%>
+                <%= link_to post.link, url_for(post.link), target: "_blank",class: "col-12" %>
+                <% elsif image_format_validation(post.body) %>
+                <%=post.body%>
+                <%else%>
+                <p class="col-12 "><%= post.body.to_plain_text.truncate(30) %></p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-1 mb-1">
+          <div class="col-12 d-grid">
+            <%= link_to community_post_path(post.community, post), class: "list-post-tab" do %>
+              <i class="fa fa-comment mt-1"></i>
+              <%= post.comments.size %>
+              Comments
+            <% end %>
+            <%= link_to "#", class: "list-post-tab" do %>
+              <i class="fa fa-share mt-1"></i>
+              Share
+            <% end %>
+            <%= link_to "#", class: "list-post-tab saved", remote: true, id: "save-actions-"+post.id.to_s, "data-id"=>post.id do %>
+              <div class="fa <%= is_saved post %> <%= authorized_save_post %> ">
+                <%= save_or_unsave post %>
+              </div>
+            <% end %>
+            <%= link_to community_post_path(post.community, post), class: "list-post-tab" do %>
+              <i class="fa fa-flag-o mt-1"></i>
+              Report
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <%end%>
+  <%else%>
+    <div class="card post-card mb-3 shadow">
+      <center><%= image_tag "telescope-snoo.png" %>
+        <h4>
+        <b>Hm... we couldn’t find any results for “<%= params[:search]%>”</b>
+        </h4>
+      </center>
+    <br></div>
+<%end%>

@@ -1,0 +1,52 @@
+<% if !posts_with_comments.empty?()   %>
+  <% posts_with_comments.each do |comment| %>
+    <div class="card post-card mb-3 shadow">
+      <div class="row m-0">
+        <div class="col-11">
+          <div class="d-flex post-list-head mt-2">
+            <%= display_profile_picture comment.post.community, "post-list-profile-img mr-1", "rediit-logo.png" %>
+            <strong><%= link_to "r/"+comment.post.community.name.capitalize, community_path(comment.post.community), class: "text-dark" %>
+              . </strong>
+            <p class="ml-1 text-muted">Posted by
+              <%= link_to "u/"+comment.account.username.capitalize, profile_path(comment.account.username), class: "text-muted" %>
+              <%= time_ago_in_words comment.created_at %> ago</p>
+          </div>
+          <div class="row">
+            <div class="col-12 d-flex post-title search-margin">
+              <h5><%= link_to comment.post.title, community_post_path(comment.post.community, comment.post), class: "text-dark" %>
+              </h5>
+            </div>
+          </div>
+          <div class="card post-card mb-3 shadow card-color">
+            <div class="row m-0">
+              <div class="col-11">
+                <div class="row card-color">
+                  <div class="col-10 ">
+                    <div class="d-flex post-list-head mt-2 ">
+                      <%= display_profile_picture comment.post.account, "post-list-profile-img mr-1", "profile-img.jpg" %>
+                      <strong><%= link_to "r/"+comment.post.community.name.capitalize, community_path(comment.post.community), class: "text-dark" %>
+                        . </strong>
+                      <p class="ml-1 text-muted"><%= time_ago_in_words comment.created_at %> ago</p>
+                    </div>
+                  </div>
+                  <div class="list-post-img search-margin">
+                    <p class="col-12 ">
+                      <%=link_to comment.message.to_plain_text.truncate(100), community_post_path(comment.post.community, comment.post, anchor: "comment_#{comment.id}", highlight: comment.id), class: "text-dark",id: "highlighted-comment"%>
+                    </p>
+                    <br>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <%end%>
+<%else%>
+  <div class="card post-card mb-3 shadow">
+    <center><%= image_tag "telescope-snoo.png" %>
+      <h4><b>Hm... we couldn't find any results for "<%= params[:search]%>"</b></h4>
+    </center><br>
+  </div>
+<%end%>

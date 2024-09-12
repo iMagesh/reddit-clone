@@ -155,6 +155,14 @@
   font-size: 0.7em;
 }
 
+.community-list-head {
+  font-size: 1.0em;
+}
+
+.community-font{
+  font-size: 0.6em;
+}
+
 .post-list-profile-img {
   position: relative;
   width: 20px;
@@ -208,6 +216,15 @@
   text-decoration: none;
   color: #8c8f91;
   border-radius: 5px;
+}
+.post-list-profile-img-search {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  top: 22px;
+  margin-left: 18px;
 }
 
 .list-post-tab:hover {

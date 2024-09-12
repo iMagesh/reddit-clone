@@ -1,0 +1,15 @@
+<div class="margin-search">
+<%= render partial: "communities/communities_search_tab"%>
+  <div class="tab-content">
+  <div id="posts" class="tab-pane fade-in infinity ">
+  <br>
+  <%= render partial: "posts/post_search" , locals: { posts: @posts }%>
+  </div>
+  <div id="comments" class="tab-pane fade infinity">
+  <br>
+  <%= render partial: "communities/communities_comments_search", locals: { posts_with_comments: @posts_with_comments }%>
+  </div>
+  </div>
+</div>
+
+  
